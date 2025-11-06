@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
-import { App } from '@capacitor/app';
 import { Link } from 'react-router-dom';
 import SOSButton from '../components/SOSButton';
 import FlashlightToggle from '../components/FlashlightToggle';
-import AddContactButton from '../components/AddContactButton';
 import { getContacts } from '../utils/storage';
 
 export default function Home() {
@@ -13,7 +11,7 @@ export default function Home() {
   const contacts = getContacts();
 
   useEffect(() => {
-    checkLocation();
+  checkLocation();
   }, []);
 
   const checkLocation = async () => {
@@ -26,6 +24,12 @@ export default function Home() {
     }
   };
 
+  const openAppSettings = () => {
+    if (typeof window !== 'undefined') {
+      window.open('app-settings:', '_system');
+    }
+  };
+
   const requestLocation = async () => {
     if (isRequesting) return;
     setIsRequesting(true);
@@ -35,11 +39,10 @@ export default function Home() {
       if (result.location === 'granted' || result.coarseLocation === 'granted') {
         await checkLocation();
       } else {
-        // Open app settings if denied
-        await App.openAppSettings();
+        openAppSettings();
       }
     } catch {
-      await App.openAppSettings();
+      openAppSettings();
     } finally {
       setIsRequesting(false);
     }
@@ -47,11 +50,9 @@ export default function Home() {
 
   if (!locationOk) {
     return (
-      <div className="max-w-md mx-auto p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Enable Location</h2>
-        <p className="mb-6 text-black">
-          SOS needs your location to send help.
-        </p>
+      <div className="max-w-md mx-auto p-8 text-center min-h-screen flex flex-col justify-center">
+        <h2 className="text-2xl font-bold mb-4 text-black dark:text-white">Enable Location</h2>
+        <p className="mb-6 text-black dark:text-white">SOS needs your location to send help.</p>
         <button
           onClick={requestLocation}
           disabled={isRequesting}
@@ -63,39 +64,46 @@ export default function Home() {
         >
           {isRequesting ? 'Opening...' : 'Grant Location'}
         </button>
-        <p className="text-sm text-black">
-          If denied, enable in <strong>Settings → Apps → Farmrod SOS → Permissions → Location</strong>
+        <p className="text-sm text-black dark:text-white">
+          If denied, go to <strong>Settings → Apps → Farmrod SOS → Permissions → Location</strong>
         </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-12 text-center">
-      <h2 className="text-4xl font-black text-black mb-8">
-        Farmrod SOS
-      </h2>
-
-      <p className="text-sm text-black mb-6">
-        {contacts.length} contact{contacts.length !== 1 ? 's' : ''} ready
-      </p>
-
-      <SOSButton />
-
-      <div className="mt-6">
-        <AddContactButton />
+    <div className="max-w-md mx-auto px-4 py-12 min-h-screen flex flex-col items-center justify-between">
+      {/* Top: Title + Contact Count */}
+      <div className="text-center">
+        <h2 className="text-4xl font-black text-black dark:text-white mb-2">
+          Farmrod SOS
+        </h2>
+        <p className="text-sm text-black dark:text-white">
+          {contacts.length} contact{contacts.length !== 1 ? 's' : ''} ready
+        </p>
       </div>
 
-      <div className="mt-16">
+      {/* Middle: SOS Button + Dropdown */}
+      <div className="flex flex-col items-center space-y-6">
+        <SOSButton />
+        <Link
+          to="/add-contact"
+          className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-black dark:border-white text-black dark:text-white rounded-full font-bold shadow hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 transition"
+        >
+          Add Emergency Contact
+        </Link>
+      </div>
+
+      {/* Bottom: Flashlight + Settings */}
+      <div className="flex flex-col items-center space-y-8">
         <FlashlightToggle />
+        <Link
+          to="/settings"
+          className="text-blue-600 dark:text-blue-400 underline font-medium"
+        >
+          Settings
+        </Link>
       </div>
-
-      <Link
-        to="/settings"
-        className="mt-8 inline-block text-blue-600 dark:text-blue-400 underline"
-      >
-        More Settings
-      </Link>
     </div>
   );
 }

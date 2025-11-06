@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
+import AddContact from './components/AddContactButton';   // ← ADD THIS
 import './index.css';
 
 function LogoScreen() {
@@ -22,7 +23,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Apply saved dark mode
   useEffect(() => {
     const isDark = localStorage.getItem('darkMode') === 'true';
     document.documentElement.classList.toggle('dark', isDark);
@@ -36,6 +36,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/add-contact" element={<AddContact />} />  {/* ← ADD THIS LINE */}
         </Routes>
       </div>
     </Router>

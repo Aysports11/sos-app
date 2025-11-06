@@ -1,110 +1,57 @@
-import { useState } from 'react';
-import { saveContacts, getContacts, Contact } from '../utils/storage';
+import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [contacts, setContacts] = useState<Contact[]>(getContacts());
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('darkMode') === 'true'
-  );
+  const navigate = useNavigate();
+  const isDark = document.documentElement.classList.contains('dark');
 
-  const addContact = () => {
-    if (!name || !phone) return;
-    const newContact: Contact = {
-      id: Date.now().toString(),
-      name,
-      phone
-    };
-    const updated = [...contacts, newContact];
-    saveContacts(updated);
-    setContacts(updated);
-    setName('');
-    setPhone('');
+  const setLightMode = () => {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('darkMode', 'false');
   };
 
-  const deleteContact = (id: string) => {
-    const updated = contacts.filter(c => c.id !== id);
-    saveContacts(updated);
-    setContacts(updated);
-  };
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', String(newMode));
-    document.documentElement.classList.toggle('dark', newMode);
+  const setDarkMode = () => {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('darkMode', 'true');
   };
 
   return (
     <div className="max-w-md mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6 text-center">Settings</h2>
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/')}
+        className="mb-6 text-blue-600 dark:text-blue-400 font-medium flex items-center"
+      >
+        ← Back to Home
+      </button>
 
-      {/* Dark Mode Toggle */}
-      <div className="flex items-center justify-between mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
-        <span className="font-medium">Dark Mode</span>
+      <h2 className="text-2xl font-bold mb-8 text-center text-black dark:text-white">
+        Choose Theme
+      </h2>
+
+      <div className="space-y-4">
+        {/* Light Mode Button */}
         <button
-          onClick={toggleDarkMode}
-          className={`w-14 h-8 rounded-full p-1 transition ${
-            darkMode ? 'bg-sos' : 'bg-gray-400'
+          onClick={setLightMode}
+          className={`w-full py-4 rounded-xl font-bold text-lg transition ${
+            !isDark
+              ? 'bg-white border-2 border-sos text-sos shadow-lg'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
           }`}
         >
-          <div
-            className={`w-6 h-6 bg-white rounded-full shadow transition-transform ${
-              darkMode ? 'translate-x-6' : ''
-            }`}
-          />
+          ☀️ Light Mode
         </button>
-      </div>
 
-      {/* Add Contact */}
-      <div className="mb-6 space-y-3">
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          className="w-full p-3 border rounded-lg"
-        />
-        <input
-          type="tel"
-          placeholder="Phone (e.g. +1234567890)"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-          className="w-full p-3 border rounded-lg"
-        />
+        {/* Dark Mode Button */}
         <button
-          onClick={addContact}
-          className="w-full py-3 bg-sos text-white rounded-lg font-bold"
+          onClick={setDarkMode}
+          className={`w-full py-4 rounded-xl font-bold text-lg transition ${
+            isDark
+              ? 'bg-sos text-white shadow-lg'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+          }`}
         >
-          Add Contact
+          🌙 Dark Mode
         </button>
-      </div>
-
-      {/* Contact List */}
-      <div className="space-y-2">
-        <h3 className="font-semibold text-lg">Emergency Contacts</h3>
-        {contacts.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No contacts yet</p>
-        ) : (
-          contacts.map(c => (
-            <div
-              key={c.id}
-              className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-            >
-              <div>
-                <p className="font-medium">{c.name}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{c.phone}</p>
-              </div>
-              <button
-                onClick={() => deleteContact(c.id)}
-                className="text-red-500 font-bold"
-              >
-                ×
-              </button>
-            </div>
-          ))
-        )}
       </div>
     </div>
   );
