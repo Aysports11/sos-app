@@ -11,10 +11,8 @@ install! 'cocoapods', :disable_input_output_paths => true
 def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
-  pod 'ByteowlsCapacitorSms', :path => '../../node_modules/@byteowls/capacitor-sms'
-  pod 'CapacitorGeolocation', :path => '../../node_modules/@capacitor/geolocation'
   pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
-  pod 'CapgoCapacitorFlash', :path => '../../node_modules/@capgo/capacitor-flash'
+  pod 'CapacitorGeolocation', :path => '../../node_modules/@capacitor/geolocation'
 end
 
 target 'App' do

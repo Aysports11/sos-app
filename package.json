@@ -5,6 +5,7 @@
   "dependencies": {
     "@byteowls/capacitor-sms": "^5.0.0",
     "@capacitor/android": "^6.1.2",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/core": "^6.1.2",
     "@capacitor/geolocation": "^6.0.0",
     "@capacitor/haptics": "^6.0.0",
