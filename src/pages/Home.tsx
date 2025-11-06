@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { Link } from 'react-router-dom';
 import SOSButton from '../components/SOSButton';
 import FlashlightToggle from '../components/FlashlightToggle';
+import AddContactButton from '../components/AddContactButton';
+import { getContacts } from '../utils/storage';
 
 export default function Home() {
   const [locationOk, setLocationOk] = useState(false);
+  const contacts = getContacts();
 
   useEffect(() => {
     (async () => {
@@ -36,11 +40,27 @@ export default function Home() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-12 text-center">
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">Tap SOS in Emergency</h2>
+      <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+        Tap SOS in Emergency
+      </h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        {contacts.length} contact{contacts.length !== 1 ? 's' : ''} ready
+      </p>
+
       <SOSButton />
+
+      <AddContactButton />
+
       <div className="mt-16">
         <FlashlightToggle />
       </div>
+
+      <Link
+        to="/settings"
+        className="mt-8 inline-block text-blue-600 dark:text-blue-400 underline"
+      >
+        More Settings
+      </Link>
     </div>
   );
 }
