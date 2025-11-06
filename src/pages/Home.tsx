@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import SOSButton from '../components/SOSButton';
-import FlashlightToggle from '../components/FlashlightToggle';   // ← NEW
+import FlashlightToggle from '../components/FlashlightToggle';
 
 export default function Home() {
   const [locationOk, setLocationOk] = useState(false);
@@ -39,7 +39,7 @@ export default function Home() {
       <h2 className="text-3xl font-bold text-gray-800 mb-4">Tap SOS in Emergency</h2>
       <SOSButton />
       <div className="mt-16">
-        <FlashlightToggle />   {/* ← NEW */}
+        <FlashlightToggle />
       </div>
     </div>
   );

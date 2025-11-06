@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { SmsManager } from '@byteowls/capacitor-sms';
-import { Media } from '@capacitor-community/media';
 import { getContacts } from '../utils/storage';
 
 const alertTypes = [
-  { id: 'danger', label: 'DANGER ALERT', icon: '🚨', sound: 'danger.mp3' },
-  { id: 'lost', label: 'HELP - I\'m Lost', icon: '🗺️', sound: 'lost.mp3' },
-  { id: 'money', label: 'HELP - Out of Money', icon: '💰', sound: 'money.mp3' },
-  { id: 'fire', label: 'HELP - House on Fire', icon: '🔥', sound: 'fire.mp3' },
-  { id: 'suspicious', label: 'SUSPICIOUS PERSON', icon: '👀', sound: 'suspicious.mp3' },
+  { id: 'danger', label: 'DANGER ALERT', icon: 'EMERGENCY' },
+  { id: 'lost', label: 'HELP – I’m Lost', icon: 'MAP' },
+  { id: 'money', label: 'HELP – Out of Money', icon: 'MONEY' },
+  { id: 'fire', label: 'HELP – House on Fire', icon: 'FIRE' },
+  { id: 'suspicious', label: 'SUSPICIOUS PERSON', icon: 'EYE' },
 ];
 
 export default function SOSButton() {
@@ -31,7 +30,7 @@ export default function SOSButton() {
       const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
       const { latitude, longitude } = pos.coords;
       const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
-      const device = navigator.userAgent.split('(')[1].split(')')[0];
+      const device = navigator.userAgent.split('(')[1]?.split(')')[0] ?? 'Unknown';
 
       const message = `${selected.icon} ${selected.label}\n\nLocation: ${mapsUrl}\nDevice: ${device}\nTime: ${new Date().toLocaleString()}`;
 
@@ -39,13 +38,6 @@ export default function SOSButton() {
         numbers: contacts.map(c => c.phone),
         text: message
       });
-
-      // Play sound
-      const player = await Media.createPlayer({
-        url: `/assets/sounds/${selected.sound}`,
-        volume: 1.0
-      });
-      await player.play();
 
       await Haptics.impact({ style: ImpactStyle.Heavy });
       alert('SOS Alert Sent!');
@@ -61,12 +53,12 @@ export default function SOSButton() {
     <div className="flex flex-col items-center space-y-6">
       <select
         value={selected.id}
-        onChange={(e) => setSelected(alertTypes.find(t => t.id === e.target.value)!)}
+        onChange={e => setSelected(alertTypes.find(t => t.id === e.target.value)!)}
         className="w-64 p-3 text-lg font-medium border-2 border-sos rounded-xl bg-white"
       >
-        {alertTypes.map(type => (
-          <option key={type.id} value={type.id}>
-            {type.icon} {type.label}
+        {alertTypes.map(t => (
+          <option key={t.id} value={t.id}>
+            {t.icon} {t.label}
           </option>
         ))}
       </select>
