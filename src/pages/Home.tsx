@@ -40,16 +40,19 @@ export default function Home() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-12 text-center">
-      <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-        Tap SOS in Emergency
+      <h2 className="text-4xl font-black text-black mb-8">
+        Farmrod SOS
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+
+      <p className="text-sm text-black mb-6">
         {contacts.length} contact{contacts.length !== 1 ? 's' : ''} ready
       </p>
 
       <SOSButton />
 
-      <AddContactButton />
+      <div className="mt-6">
+        <AddContactButton />
+      </div>
 
       <div className="mt-16">
         <FlashlightToggle />
