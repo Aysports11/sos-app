@@ -8,31 +8,51 @@ import { getContacts } from '../utils/storage';
 
 export default function Home() {
   const [locationOk, setLocationOk] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false); // ← NEW
   const contacts = getContacts();
 
   useEffect(() => {
-    (async () => {
-      const loc = await Geolocation.checkPermissions();
-      setLocationOk(loc.location === 'granted');
-    })();
+    checkLocation();
   }, []);
 
+  const checkLocation = async () => {
+    try {
+      const perm = await Geolocation.checkPermissions();
+      setLocationOk(perm.location === 'granted' || perm.coarseLocation === 'granted');
+    } catch {
+      setLocationOk(false);
+    }
+  };
+
   const requestLocation = async () => {
-    await Geolocation.requestPermissions();
-    const loc = await Geolocation.checkPermissions();
-    setLocationOk(loc.location === 'granted');
+    if (isRequesting) return; // Prevent double-tap
+    setIsRequesting(true);
+
+    try {
+      await Geolocation.requestPermissions();
+      await checkLocation();
+    } catch (err) {
+      alert('Location permission denied. Enable in Settings.');
+    } finally {
+      setIsRequesting(false);
+    }
   };
 
   if (!locationOk) {
     return (
       <div className="max-w-md mx-auto p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">Enable Location</h2>
-        <p className="mb-6">SOS needs your location to send help.</p>
+        <p className="mb-6 text-black">SOS needs your location to send help.</p>
         <button
           onClick={requestLocation}
-          className="bg-sos text-white py-3 px-6 rounded-full text-lg font-bold"
+          disabled={isRequesting}
+          className={`py-3 px-6 rounded-full text-lg font-bold transition ${
+            isRequesting
+              ? 'bg-gray-400 text-gray-600'
+              : 'bg-sos text-white hover:bg-sosDark active:scale-95'
+          }`}
         >
-          Grant Location
+          {isRequesting ? 'Requesting...' : 'Grant Location'}
         </button>
       </div>
     );
