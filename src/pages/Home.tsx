@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { App } from '@capacitor/app';
 import { Link } from 'react-router-dom';
 import SOSButton from '../components/SOSButton';
 import FlashlightToggle from '../components/FlashlightToggle';
@@ -8,7 +9,7 @@ import { getContacts } from '../utils/storage';
 
 export default function Home() {
   const [locationOk, setLocationOk] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false); // ← NEW
+  const [isRequesting, setIsRequesting] = useState(false);
   const contacts = getContacts();
 
   useEffect(() => {
@@ -18,21 +19,27 @@ export default function Home() {
   const checkLocation = async () => {
     try {
       const perm = await Geolocation.checkPermissions();
-      setLocationOk(perm.location === 'granted' || perm.coarseLocation === 'granted');
+      const granted = perm.location === 'granted' || perm.coarseLocation === 'granted';
+      setLocationOk(granted);
     } catch {
       setLocationOk(false);
     }
   };
 
   const requestLocation = async () => {
-    if (isRequesting) return; // Prevent double-tap
+    if (isRequesting) return;
     setIsRequesting(true);
 
     try {
-      await Geolocation.requestPermissions();
-      await checkLocation();
-    } catch (err) {
-      alert('Location permission denied. Enable in Settings.');
+      const result = await Geolocation.requestPermissions();
+      if (result.location === 'granted' || result.coarseLocation === 'granted') {
+        await checkLocation();
+      } else {
+        // Open app settings if denied
+        await App.openAppSettings();
+      }
+    } catch {
+      await App.openAppSettings();
     } finally {
       setIsRequesting(false);
     }
@@ -42,18 +49,23 @@ export default function Home() {
     return (
       <div className="max-w-md mx-auto p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">Enable Location</h2>
-        <p className="mb-6 text-black">SOS needs your location to send help.</p>
+        <p className="mb-6 text-black">
+          SOS needs your location to send help.
+        </p>
         <button
           onClick={requestLocation}
           disabled={isRequesting}
-          className={`py-3 px-6 rounded-full text-lg font-bold transition ${
+          className={`py-3 px-6 rounded-full text-lg font-bold transition mb-4 ${
             isRequesting
               ? 'bg-gray-400 text-gray-600'
               : 'bg-sos text-white hover:bg-sosDark active:scale-95'
           }`}
         >
-          {isRequesting ? 'Requesting...' : 'Grant Location'}
+          {isRequesting ? 'Opening...' : 'Grant Location'}
         </button>
+        <p className="text-sm text-black">
+          If denied, enable in <strong>Settings → Apps → Farmrod SOS → Permissions → Location</strong>
+        </p>
       </div>
     );
   }
