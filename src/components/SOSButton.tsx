@@ -5,14 +5,19 @@ import { SmsManager } from '@byteowls/capacitor-sms';
 import { getContacts } from '../utils/storage';
 
 const alertTypes = [
-  { id: 'danger', label: 'DANGER ALERT', icon: 'EMERGENCY' },
+  { id: 'danger', label: 'EMERGENCY DANGER ALERT', icon: 'EMERGENCY' },
   { id: 'lost', label: 'HELP – I’m Lost', icon: 'MAP' },
   { id: 'money', label: 'HELP – Out of Money', icon: 'MONEY' },
   { id: 'fire', label: 'HELP – House on Fire', icon: 'FIRE' },
   { id: 'suspicious', label: 'SUSPICIOUS PERSON', icon: 'EYE' },
 ];
 
-export default function SOSButton() {
+// Add props interface
+interface SOSButtonProps {
+  onNeedLocation?: () => Promise<void>;
+}
+
+export default function SOSButton({ onNeedLocation }: SOSButtonProps) {
   const [selected, setSelected] = useState(alertTypes[0]);
   const [sending, setSending] = useState(false);
   const contacts = getContacts();
@@ -42,8 +47,13 @@ export default function SOSButton() {
       await Haptics.impact({ style: ImpactStyle.Heavy });
       alert('SOS Alert Sent!');
     } catch (err: any) {
+      if (err.message?.includes('permission')) {
+        alert('Location denied. Enable in Settings.');
+        onNeedLocation?.();
+      } else {
+        alert('Failed: ' + (err.message || 'Check permissions'));
+      }
       await Haptics.impact({ style: ImpactStyle.Light });
-      alert('Failed: ' + (err.message || 'Check permissions'));
     } finally {
       setSending(false);
     }
@@ -54,7 +64,7 @@ export default function SOSButton() {
       <select
         value={selected.id}
         onChange={e => setSelected(alertTypes.find(t => t.id === e.target.value)!)}
-        className="w-64 p-3 text-lg font-medium border-2 border-sos rounded-xl bg-white"
+        className="w-64 p-3 text-lg font-medium border-2 border-sos rounded-xl bg-white dark:bg-gray-900 text-black dark:text-white"
       >
         {alertTypes.map(t => (
           <option key={t.id} value={t.id}>
