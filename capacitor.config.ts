@@ -9,7 +9,8 @@ const config: CapacitorConfig = {
     permissions: [
       'ACCESS_FINE_LOCATION',
       'ACCESS_COARSE_LOCATION',
-      'SEND_SMS'
+      'SEND_SMS',
+      'READ_CONTACTS'  // ← Added for contacts dropdown
     ]
   },
   plugins: {
